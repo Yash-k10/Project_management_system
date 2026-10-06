@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, Response
 
 app = Flask(__name__)
-app.secret_key = 'projecthub_secret_key_12345'
+app.secret_key = os.environ.get('SECRET_KEY', 'projecthub_secret_key_12345')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 DATABASE = os.path.join(os.path.dirname(__file__), 'database.db')
@@ -340,4 +340,5 @@ def download_thesis(project_id):
     return Response(thesis, mimetype="text/plain", headers={"Content-Disposition": f"attachment;filename={filename}"})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
