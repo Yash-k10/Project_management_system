@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Project - ProjectHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="{{ url_for('dashboard') }}">ProjectHub</a>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <span class="nav-user">{{ user.name }}</span>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-card form-wide">
+            <h2>Add New Project</h2>
+            <p class="form-subtitle">Create a project repository and optionally attach source code archive (.zip).</p>
+
+            <form id="create-project-form" method="POST" action="{{ url_for('create_project') }}" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">Project Title</label>
+                    <input type="text" id="title" name="title" placeholder="e.g. Smart Attendance System" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4" placeholder="Briefly describe what this project does and its core features..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="tech_stack">Technology Stack</label>
+                    <input type="text" id="tech_stack" name="tech_stack" placeholder="e.g. Python, Flask, HTML, CSS, SQLite" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="project_file">Project ZIP Archive</label>
+                    <input type="file" id="project_file" name="project_file" accept=".zip">
+                    <small>Upload your source code archive. Only .zip files are allowed.</small>
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>ProjectHub &copy; 2026. Simple Project Management System.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

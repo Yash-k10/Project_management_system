@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Project Thesis - {{ project.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="{{ url_for('dashboard') }}">ProjectHub</a>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <span class="nav-user">{{ user.name }}</span>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="thesis-container">
+            <div class="thesis-header">
+                <div>
+                    <h2>Project Thesis Report</h2>
+                    <p style="color: #64748b; font-size: 0.95rem;">
+                        Project: <strong>{{ project.title }}</strong> &bull; Status: <strong>{{ project.status }}</strong>
+                    </p>
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <a href="{{ url_for('download_thesis', project_id=project.id) }}" class="btn btn-primary btn-sm">
+                        &#128190; Download Thesis (.txt)
+                    </a>
+                    <a href="{{ url_for('project_details', project_id=project.id) }}" class="btn btn-secondary btn-sm">
+                        &larr; Back to Project
+                    </a>
+                </div>
+            </div>
+
+            <pre class="thesis-body">{{ thesis }}</pre>
+
+            <div style="margin-top: 1.5rem; text-align: right;">
+                <a href="{{ url_for('download_thesis', project_id=project.id) }}" class="btn btn-primary">
+                    Download Thesis as Text File
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>ProjectHub &copy; 2026. Simple Project Management System.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

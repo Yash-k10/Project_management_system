@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project.title }} - ProjectHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="{{ url_for('dashboard') }}">ProjectHub</a>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <span class="nav-user">{{ user.name }}</span>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Project Overview Header -->
+        <div class="project-header">
+            <div class="project-title-row">
+                <div>
+                    <h1>{{ project.title }}</h1>
+                    <span class="status status-{{ project.status|lower|replace(' ', '-') }}">
+                        Status: {{ project.status }}
+                    </span>
+                </div>
+
+                {% if is_owner %}
+                    <!-- Status Update Form for Owner -->
+                    <form method="POST" action="{{ url_for('update_status', project_id=project.id) }}" style="display: flex; gap: 0.5rem; align-items: center;">
+                        <label for="status-select" style="font-size: 0.85rem; font-weight: 600; color: #475569;">Change Status:</label>
+                        <select id="status-select" name="status" style="padding: 0.35rem 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem;">
+                            <option value="Not Started" {% if project.status == 'Not Started' %}selected{% endif %}>Not Started</option>
+                            <option value="In Progress" {% if project.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                            <option value="Completed" {% if project.status == 'Completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                        <button type="submit" class="btn btn-secondary btn-sm">Update</button>
+                    </form>
+                {% endif %}
+            </div>
+
+            <div class="project-meta-details">
+                <div><strong>Owner:</strong> {{ project.owner_name }}</div>
+                <div><strong>Technologies:</strong> <span class="tech-badge">{{ project.tech_stack }}</span></div>
+                <div><strong>Created On:</strong> {{ project.created_at }}</div>
+            </div>
+
+            <div>
+                <h4 style="margin-bottom: 0.5rem; color: #334155;">Project Description</h4>
+                <div class="project-detail-desc">{{ project.description }}</div>
+            </div>
+
+            <!-- Action Buttons for authorized users -->
+            <div class="project-actions">
+                {% if is_member %}
+                    {% if project.file_path %}
+                        <a href="{{ url_for('download_project', project_id=project.id) }}" class="btn btn-primary btn-sm">
+                            &#128229; Download Project ZIP
+                        </a>
+                    {% else %}
+                        <span style="font-size: 0.85rem; color: #94a3b8; font-style: italic;">No ZIP archive uploaded.</span>
+                    {% endif %}
+
+                    <a href="{{ url_for('view_thesis', project_id=project.id) }}" id="generate-thesis-btn" class="btn btn-secondary btn-sm">
+                        &#10024; AI Thesis Generator
+                    </a>
+                {% else %}
+                    <div class="alert alert-info" style="margin: 0; width: 100%; font-size: 0.85rem;">
+                        <strong>Guest View:</strong> You can read project details. Only the project owner and invited members can download files or participate in chat.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Project Two-Column Grid: Left: Chat, Right: Members & Invite -->
+        <div class="project-content-grid">
+            <!-- Left: Chat Section -->
+            <div class="content-box">
+                <h3>Project Chat</h3>
+                {% if is_member %}
+                    <div class="chat-container">
+                        <div id="chat-messages" class="chat-messages">
+                            {% if messages %}
+                                {% for msg in messages %}
+                                    <div class="chat-bubble {% if msg.user_id == user.id %}chat-bubble-mine{% endif %}">
+                                        <div class="chat-meta">
+                                            <strong>{{ msg.sender_name }}</strong>
+                                            <span>{{ msg.created_at }}</span>
+                                        </div>
+                                        <div class="chat-text">{{ msg.message }}</div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p style="color: #94a3b8; text-align: center; margin-top: 5rem; font-size: 0.9rem;">
+                                    No messages yet. Start the conversation!
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        <form class="chat-form" method="POST" action="{{ url_for('send_chat', project_id=project.id) }}">
+                            <input type="text" name="message" placeholder="Type message..." required autocomplete="off">
+                            <button type="submit" class="btn btn-primary btn-sm">Send</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 3rem 1rem; color: #64748b;">
+                        <p>Project chat is restricted to the owner and invited collaborators.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Right: Members & Invite Section -->
+            <div>
+                <!-- Invite User (Owner Only) -->
+                {% if is_owner %}
+                    <div class="content-box">
+                        <h3>Invite Collaborator</h3>
+                        <form method="POST" action="{{ url_for('invite_user', project_id=project.id) }}">
+                            <div class="form-group" style="margin-bottom: 0.75rem;">
+                                <input type="email" name="email" placeholder="Registered user's email" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm btn-block">Invite User</button>
+                        </form>
+                    </div>
+                {% endif %}
+
+                <!-- Project Members List -->
+                <div class="content-box">
+                    <h3>Project Members</h3>
+                    <ul class="member-list">
+                        <li class="member-item">
+                            <span><strong>{{ project.owner_name }}</strong></span>
+                            <span class="badge badge-owner">Owner</span>
+                        </li>
+                        {% for m in members %}
+                            <li class="member-item">
+                                <span>{{ m.name }}</span>
+                                <span class="badge badge-member">Member</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>ProjectHub &copy; 2026. Simple Project Management System.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

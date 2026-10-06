@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+venv/
+env/
+
+# SQLite Database & Uploads
+database.db
+uploads/*.zip
+!uploads/.gitkeep
