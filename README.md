@@ -2,6 +2,8 @@
 
 > **Manage Projects. Collaborate. Build Together.**
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Yash-k10/Project_management_system)
+
 A simple, lightweight Project Management System built with Python Flask, SQLite, HTML, CSS, and Vanilla JavaScript.
 
 ## Features
